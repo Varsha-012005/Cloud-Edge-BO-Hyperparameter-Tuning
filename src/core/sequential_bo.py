@@ -48,8 +48,8 @@ def run_sequential_bo(dataset_name='mnist', n_trials=25):
     space = [
         Real(1e-5, 5e-3, "log-uniform", name="learning_rate"),
         Integer(32, 256, name="batch_size"),
-        Integer(10, 25, name="num_epochs"),  # ✅ INCREASED TO 10-25!
-        Real(0.0, 0.3, name="dropout_rate"),  # ✅ Added dropout
+        Integer(10, 25, name="num_epochs"),  #  INCREASED TO 10-25!
+        Real(0.0, 0.3, name="dropout_rate"),  #  Added dropout
     ]
     
     objective = get_objective(dataset_name)
@@ -67,8 +67,8 @@ def run_sequential_bo(dataset_name='mnist', n_trials=25):
     print(f"Search space:")
     print(f"  - Learning Rate: [1e-5, 5e-3] (log scale)")
     print(f"  - Batch Size: [32, 256]")
-    print(f"  - Num Epochs: [10, 25]")  # ✅ Updated!
-    print(f"  - Dropout Rate: [0.0, 0.3]")  # ✅ Added!
+    print(f"  - Num Epochs: [10, 25]")  #  Updated!
+    print(f"  - Dropout Rate: [0.0, 0.3]")  #  Added!
     print("-" * 40)
     
     result = gp_minimize(

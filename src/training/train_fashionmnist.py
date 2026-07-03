@@ -7,9 +7,10 @@ import time
 import sys
 import os
 
+# Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from model import SimpleCNN
+from src.training.model import SimpleCNN
 
 def train_fashionmnist(lr=0.001, batch_size=64, num_epochs=30):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'

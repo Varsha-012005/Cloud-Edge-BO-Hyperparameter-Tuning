@@ -1,7 +1,13 @@
 ﻿import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from model import SimpleCNN
+import sys
+import os
+
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from training.model import SimpleCNN
 
 def quick_test():
     print("Testing setup...")

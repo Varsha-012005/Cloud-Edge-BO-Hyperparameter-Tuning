@@ -732,9 +732,9 @@ stats_text = """STATISTICAL VALIDATION
 Friedman Test: p < 0.001 (SIGNIFICANT)
 
 Effect Sizes (Cohen's d):
-  • MNIST vs Fashion: d = 2.85 (Large)
-  • MNIST vs CIFAR-10: d = 8.50 (Large)
-  • Fashion vs CIFAR-10: d = 4.80 (Large)
+   MNIST vs Fashion: d = 2.85 (Large)
+   MNIST vs CIFAR-10: d = 8.50 (Large)
+   Fashion vs CIFAR-10: d = 4.80 (Large)
 
 All pairwise comparisons: p < 0.05"""
 ax3.text(0.1, 0.5, stats_text, transform=ax3.transAxes, fontsize=10,

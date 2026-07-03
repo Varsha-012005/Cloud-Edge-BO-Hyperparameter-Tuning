@@ -1,4 +1,4 @@
-import boto3
+﻿import boto3
 import json
 import time
 import numpy as np
@@ -13,7 +13,7 @@ class NumpyEncoder(json.JSONEncoder):
         return super().default(obj)
 
 print("=" * 60)
-print("☁️  AWS CLOUD CONTROLLER (FIXED)")
+print("  AWS CLOUD CONTROLLER (FIXED)")
 print("Cloud-Edge Bayesian Optimization")
 print("=" * 60)
 
@@ -21,11 +21,11 @@ print("=" * 60)
 try:
     with open('aws_config.json', 'r') as f:
         config = json.load(f)
-    print(f"\n✅ Config loaded")
+    print(f"\n Config loaded")
     print(f"   Bucket: {config['bucket_name']}")
     print(f"   Queue: {config.get('queue_name', 'cloud-edge-bo-tasks')}")
 except Exception as e:
-    print(f"❌ Error loading config: {e}")
+    print(f" Error loading config: {e}")
     exit(1)
 
 # Initialize AWS clients
@@ -60,17 +60,17 @@ class CloudController:
                 QueueUrl=queue_url,
                 MessageBody=json.dumps(task, cls=NumpyEncoder)
             )
-            print(f"  📤 Task {self.task_counter}: lr={learning_rate:.6f}, bs={batch_size}")
+            print(f"   Task {self.task_counter}: lr={learning_rate:.6f}, bs={batch_size}")
             self.task_counter += 1
             return True
         except Exception as e:
-            print(f"  ❌ Error dispatching task: {e}")
+            print(f"   Error dispatching task: {e}")
             return False
         
     def run(self, n_tasks=12):
         """Run optimization"""
         
-        print(f"\n📊 Running {n_tasks} tasks on workers...")
+        print(f"\n Running {n_tasks} tasks on workers...")
         print("-" * 40)
         
         success_count = 0
@@ -80,8 +80,8 @@ class CloudController:
                 success_count += 1
             time.sleep(0.5)  # Small delay between dispatches
         
-        print(f"\n✅ Dispatched {success_count}/{n_tasks} tasks successfully!")
-        print("\n📋 Check results in S3 bucket:")
+        print(f"\n Dispatched {success_count}/{n_tasks} tasks successfully!")
+        print("\n Check results in S3 bucket:")
         print(f"   s3://{bucket_name}/results/")
         
         # Save summary
@@ -99,9 +99,9 @@ class CloudController:
                 Key='results/controller_summary.json',
                 Body=json.dumps(summary, indent=2, cls=NumpyEncoder)
             )
-            print("\n✅ Controller summary saved to S3")
+            print("\n Controller summary saved to S3")
         except Exception as e:
-            print(f"\n⚠️ Could not save summary: {e}")
+            print(f"\n Could not save summary: {e}")
 
 if __name__ == "__main__":
     controller = CloudController()

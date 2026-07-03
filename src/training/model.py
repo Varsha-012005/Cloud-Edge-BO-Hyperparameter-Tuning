@@ -64,4 +64,4 @@ if __name__ == "__main__":
     print(f"Parameters: {count_parameters(model_cifar):,}")
     dummy = torch.randn(1, 3, 32, 32)
     print(f"Output shape: {model_cifar(dummy).shape}")
-    print("\n✅ Model verification complete!")
+    print("\n Model verification complete!")

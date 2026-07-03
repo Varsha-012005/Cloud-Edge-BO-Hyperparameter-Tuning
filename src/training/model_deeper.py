@@ -1,4 +1,4 @@
-# src/model_deeper.py
+﻿# src/model_deeper.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -154,10 +154,10 @@ if __name__ == "__main__":
     print(f"Output shape: {output_light.shape}")
     
     print("\n" + "=" * 60)
-    print("✅ Model verification complete!")
+    print(" Model verification complete!")
     print("=" * 60)
     
-    print("\n📊 Model Comparison:")
-    print(f"   SimpleCNN:   ~1.2M params  → 67.72% accuracy")
-    print(f"   DeeperCNNLight: {params_light:,} params  → Target: 70-75%")
-    print(f"   DeeperCNN:   {params_full:,} params  → Target: 75-80%")
+    print("\n Model Comparison:")
+    print(f"   SimpleCNN:   ~1.2M params   67.72% accuracy")
+    print(f"   DeeperCNNLight: {params_light:,} params   Target: 70-75%")
+    print(f"   DeeperCNN:   {params_full:,} params   Target: 75-80%")

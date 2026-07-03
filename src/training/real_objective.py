@@ -14,7 +14,7 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.model import SimpleCNN
+from training.model import SimpleCNN
 
 def train_and_evaluate(learning_rate, batch_size, num_epochs=2, dataset='mnist'):
     """
@@ -98,7 +98,7 @@ def objective_for_bo(learning_rate, batch_size):
     Wrapper for Bayesian Optimization
     Returns negative accuracy because optimizers minimize
     """
-    print(f"\n  🔍 Training with: lr={learning_rate:.6f}, batch_size={int(batch_size)}")
+    print(f"\n  Training with: lr={learning_rate:.6f}, batch_size={int(batch_size)}")
     
     # Actually train the model
     accuracy, runtime = train_and_evaluate(
@@ -108,7 +108,7 @@ def objective_for_bo(learning_rate, batch_size):
         dataset='mnist'
     )
     
-    print(f"  ✅ Validation Accuracy: {accuracy:.2f}%, Time: {runtime:.1f}s")
+    print(f"  Validation Accuracy: {accuracy:.2f}%, Time: {runtime:.1f}s")
     
     # Return negative because BO minimizes
     return -accuracy
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     # Test the function
     print("Testing real training function...")
     acc, runtime = train_and_evaluate(0.001, 64, num_epochs=1)
-    print(f"\n✅ Test complete! Accuracy: {acc:.2f}%, Time: {runtime:.1f}s")
+    print(f"\nTest complete! Accuracy: {acc:.2f}%, Time: {runtime:.1f}s")

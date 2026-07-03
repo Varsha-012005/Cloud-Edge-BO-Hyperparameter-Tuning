@@ -85,7 +85,7 @@ def plot_convergence():
     
     # Save plot
     plt.savefig("results/plots/convergence_comparison.png", dpi=150, bbox_inches='tight')
-    print("✅ Plot saved to results/plots/convergence_comparison.png")
+    print(" Plot saved to results/plots/convergence_comparison.png")
     
     # Show plot (will appear in VS Code)
     plt.show()
@@ -132,5 +132,5 @@ if __name__ == "__main__":
     plot_convergence()
     plot_timeline()
     
-    print("\n✅ All plots saved to results/plots/")
-    print("📁 View them in VS Code: Open results/plots/ folder")
+    print("\n All plots saved to results/plots/")
+    print(" View them in VS Code: Open results/plots/ folder")

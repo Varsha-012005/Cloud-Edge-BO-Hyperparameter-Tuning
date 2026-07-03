@@ -1,4 +1,4 @@
-# src/aws_terminate_ec2.py
+﻿# src/aws_terminate_ec2.py
 """
 Terminate all EC2 edge workers
 """
@@ -14,17 +14,17 @@ try:
     with open('aws_config.json', 'r') as f:
         config = json.load(f)
 except:
-    print("❌ No config file found!")
+    print(" No config file found!")
     exit(1)
 
 if 'worker_instances' not in config or not config['worker_instances']:
-    print("❌ No worker instances found in config!")
+    print(" No worker instances found in config!")
     exit(1)
 
 ec2 = boto3.client('ec2')
 instance_ids = config['worker_instances']
 
-print(f"\n⚠️  Terminating {len(instance_ids)} instances...")
+print(f"\n  Terminating {len(instance_ids)} instances...")
 print("-" * 40)
 
 for inst_id in instance_ids:
@@ -32,7 +32,7 @@ for inst_id in instance_ids:
 
 try:
     ec2.terminate_instances(InstanceIds=instance_ids)
-    print(f"\n✅ Termination request sent!")
+    print(f"\n Termination request sent!")
     print("   Instances will be terminated shortly")
     
     # Remove from config
@@ -41,4 +41,4 @@ try:
         json.dump(config, f, indent=2)
         
 except Exception as e:
-    print(f"❌ Error: {e}")
+    print(f" Error: {e}")

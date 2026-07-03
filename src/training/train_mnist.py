@@ -86,11 +86,11 @@ def train_mnist(lr=0.001, batch_size=64, num_epochs=2):
             torch.save(model.state_dict(), 'results/best_mnist_model.pth')
     
     elapsed = time.time() - start
-    print(f"\n🏆 Best Accuracy: {best_val_acc:.2f}%")
-    print(f"⏱️ Time: {elapsed:.1f}s")
+    print(f"\n Best Accuracy: {best_val_acc:.2f}%")
+    print(f" Time: {elapsed:.1f}s")
     
     return best_val_acc, elapsed
 
 if __name__ == "__main__":
     acc, t = train_mnist(num_epochs=2)
-    print(f"\n📊 Final Result: {acc:.2f}%")
+    print(f"\n Final Result: {acc:.2f}%")

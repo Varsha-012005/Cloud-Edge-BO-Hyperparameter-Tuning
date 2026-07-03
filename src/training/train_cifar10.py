@@ -8,9 +8,10 @@ import time
 import sys
 import os
 
+# Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from model import SimpleCNN
+from training.model import SimpleCNN
 
 class ImprovedCIFAR10Net(nn.Module):
     def __init__(self, num_classes=10):

@@ -24,7 +24,7 @@ class BatchBO:
         self.n_workers = n_workers
         self.dim = len(bounds)
         
-        # Initialize GP with Matérn 5/2 kernel
+        # Initialize GP with Matrn 5/2 kernel
         kernel = Matern(nu=2.5) + WhiteKernel(noise_level=0.1)
         self.gp = GaussianProcessRegressor(
             kernel=kernel,
@@ -185,7 +185,7 @@ class BatchBO:
         }
         with open(filename, 'w') as f:
             json.dump(results, f, indent=2)
-        print(f"✅ Results saved to {filename}")
+        print(f" Results saved to {filename}")
 
 
 def objective_2d(x):
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     
     # Run optimization for 5 batches (15 total evaluations)
     for batch_idx in range(5):
-        print(f"\n📦 Batch {batch_idx + 1}/5")
+        print(f"\n Batch {batch_idx + 1}/5")
         print("-" * 40)
         
         # Propose batch of hyperparameters
@@ -233,8 +233,8 @@ if __name__ == "__main__":
     print("OPTIMIZATION COMPLETE!")
     print("=" * 60)
     best_X, best_y = batch_bo.get_best()
-    print(f"\n🏆 Best value: {best_y:.4f}")
-    print(f"📋 Best parameters: {best_X}")
+    print(f"\n Best value: {best_y:.4f}")
+    print(f" Best parameters: {best_X}")
     
     batch_bo.plot_convergence()
     batch_bo.save_results()

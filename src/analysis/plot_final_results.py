@@ -1,4 +1,4 @@
-# src/plot_final_results.py
+﻿# src/plot_final_results.py
 import matplotlib.pyplot as plt
 import numpy as np
 import json
@@ -53,5 +53,5 @@ axes[2].grid(True, alpha=0.3)
 plt.suptitle('Sequential Bayesian Optimization Results on 3 Datasets', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('results/three_datasets_results.png', dpi=150, bbox_inches='tight')
-print("✅ Graph saved to results/three_datasets_results.png")
+print(" Graph saved to results/three_datasets_results.png")
 plt.show()
