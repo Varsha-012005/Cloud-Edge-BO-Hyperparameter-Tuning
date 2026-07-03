@@ -1,0 +1,86 @@
+﻿version: '3.8'
+
+services:
+  # Cloud Controller
+  cloud-controller:
+    build: .
+    container_name: cloud-controller
+    command: python src/cloud_edge_working.py
+    environment:
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+      - ./aws_config.json:/app/aws_config.json
+    networks:
+      - cloud-edge-network
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  # Edge Worker 1 - Slow (t3.micro equivalent)
+  edge-worker-slow:
+    build: .
+    container_name: edge-worker-slow
+    command: python src/train_mnist.py
+    environment:
+      - WORKER_ID=slow
+      - SPEED_FACTOR=0.5
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+    networks:
+      - cloud-edge-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  # Edge Worker 2 - Medium (t3.small equivalent)
+  edge-worker-medium:
+    build: .
+    container_name: edge-worker-medium
+    command: python src/train_mnist.py
+    environment:
+      - WORKER_ID=medium
+      - SPEED_FACTOR=1.0
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+    networks:
+      - cloud-edge-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+
+  # Edge Worker 3 - Fast (t3.medium equivalent)
+  edge-worker-fast:
+    build: .
+    container_name: edge-worker-fast
+    command: python src/train_mnist.py
+    environment:
+      - WORKER_ID=fast
+      - SPEED_FACTOR=2.0
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+    networks:
+      - cloud-edge-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+networks:
+  cloud-edge-network:
+    driver: bridge
