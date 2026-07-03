@@ -37,7 +37,9 @@ This project explores whether Bayesian Optimization can be made faster and smart
 
 ## Architecture
 
-![Cloud-Edge Bayesian Optimization Architecture](paper/figures/architecture.png)
+![Cloud-Edge Bayesian Optimization Architecture]
+![Uploading figure1.png…]()
+
 
 
 The cloud controller sits at the top and owns the Gaussian Process model, which predicts expected accuracy and how uncertain it is about that prediction. That feeds into the q-UCB acquisition step, which balances exploring new regions of the search space against exploiting what already looks promising. The batch proposer then generates three hyperparameter configurations at once, spread out enough to not waste evaluations on near-duplicates.
