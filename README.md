@@ -37,7 +37,8 @@ This project explores whether Bayesian Optimization can be made faster and smart
 
 ## Architecture
 
-![Cloud-Edge Bayesian Optimization Architecture]
+![Cloud-Edge Bayesian Optimization Architecture]<img width="600" height="650" alt="image" src="https://github.com/user-attachments/assets/395cd3ea-09a1-4fa7-8a32-9208a3d4852e" />
+
 
 The cloud controller sits at the top and owns the Gaussian Process model, which predicts expected accuracy and how uncertain it is about that prediction. That feeds into the q-UCB acquisition step, which balances exploring new regions of the search space against exploiting what already looks promising. The batch proposer then generates three hyperparameter configurations at once, spread out enough to not waste evaluations on near-duplicates.
 
@@ -108,5 +109,4 @@ MIT License
 
 ## Contact
 
-Email: varshakumari26816@gmail.com
 GitHub: [@Varsha-012005](https://github.com/Varsha-012005)
