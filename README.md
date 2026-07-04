@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 ```bash
 # a quick sanity check with just a few trials
-python src/core/sequential_bo.py --dataset mnist --trials 3
+python src/core/sequential_bo.py --dataset mnist --trials 15
 
 # the full run
 python src/core/sequential_bo.py --dataset mnist --trials 15
