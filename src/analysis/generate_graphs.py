@@ -1,6 +1,6 @@
 ﻿"""
-COMPLETE PAPER FIGURES GENERATOR - DATASET FOLDERS
-Saves graphs to paper/figures/mnist/, paper/figures/fashionmnist/, paper/figures/cifar10/
+COMPLETE PAPER FIGURES GENERATOR - NO INDIVIDUAL TRIALS IN CONVERGENCE
+Only Best so far and Baseline in convergence graphs
 """
 
 import matplotlib
@@ -11,9 +11,7 @@ import pandas as pd
 import os
 from matplotlib.patches import Patch
 
-# ============================================================
 # CREATE DIRECTORIES
-# ============================================================
 os.makedirs('paper/figures', exist_ok=True)
 os.makedirs('paper/figures/mnist', exist_ok=True)
 os.makedirs('paper/figures/fashionmnist', exist_ok=True)
@@ -21,9 +19,7 @@ os.makedirs('paper/figures/cifar10', exist_ok=True)
 os.makedirs('paper/tables', exist_ok=True)
 os.makedirs('report_graphs', exist_ok=True)
 
-# ============================================================
 # STYLE SETTINGS
-# ============================================================
 plt.rcParams.update({
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica'],
@@ -45,11 +41,11 @@ plt.rcParams.update({
 })
 
 print("=" * 70)
-print("GENERATING ALL PAPER FIGURES")
+print("GENERATING PAPER FIGURES - NO INDIVIDUAL TRIALS")
 print("=" * 70)
 
 # ============================================================
-# DATA - PAPER RESULTS
+# DATA
 # ============================================================
 
 FINAL_RESULTS = {
@@ -77,36 +73,44 @@ METHOD_RESULTS = {
 }
 
 METHOD_NAMES = ['Random Search', 'Grid Search', 'Sequential BO', 'Cloud-Edge BO']
-
-# Convergence data
 trials = list(range(1, 11))
 
+# Dataset Mapping
+DATASET_MAP = {
+    'mnist': 'MNIST',
+    'fashionmnist': 'FashionMNIST',
+    'cifar10': 'CIFAR-10'
+}
+
+# ============================================================
+# CONVERGENCE DATA - NO INDIVIDUAL TRIALS
+# ============================================================
 CONVERGENCE = {
     'mnist': {
-        'individual': [98.12, 98.45, 98.78, 98.92, 99.05, 99.08, 99.10, 99.12, 99.58, 99.58],
         'best': [98.12, 98.45, 98.78, 98.92, 99.05, 99.08, 99.10, 99.12, 99.58, 99.58],
         'baseline': 98.50,
         'best_acc': 99.58,
         'name': 'MNIST',
         'color': '#3498DB',
+        'marker': 'o',
         'folder': 'mnist'
     },
     'fashionmnist': {
-        'individual': [89.96, 90.45, 90.89, 91.23, 91.67, 92.01, 92.34, 92.56, 92.72, 92.79],
         'best': [89.96, 90.45, 90.89, 91.23, 91.67, 92.01, 92.34, 92.56, 92.72, 92.79],
         'baseline': 89.96,
         'best_acc': 92.79,
         'name': 'FashionMNIST',
         'color': '#2ECC71',
+        'marker': 's',
         'folder': 'fashionmnist'
     },
     'cifar10': {
-        'individual': [65.00, 68.50, 72.30, 75.80, 78.90, 81.20, 83.50, 85.10, 86.20, 86.73],
         'best': [65.00, 68.50, 72.30, 75.80, 78.90, 81.20, 83.50, 85.10, 86.20, 86.73],
         'baseline': 65.00,
         'best_acc': 86.73,
         'name': 'CIFAR-10',
         'color': '#E74C3C',
+        'marker': '^',
         'folder': 'cifar10'
     }
 }
@@ -149,15 +153,13 @@ datasets = ['MNIST', 'FashionMNIST', 'CIFAR-10']
 dataset_keys = ['mnist', 'fashionmnist', 'cifar10']
 
 # ============================================================
-# FIGURE 1: 01_final_results_barchart.png
+# FIGURE 1: Final Results Bar Chart
 # ============================================================
 print("\n[1/15] Figure 1: Final Results Bar Chart...")
 
 fig, ax = plt.subplots(figsize=(9, 5.5))
-
 baseline = [98.50, 89.96, 65.00]
 our_results = [99.58, 92.79, 86.73]
-
 x = np.arange(len(datasets))
 width = 0.4
 
@@ -188,12 +190,11 @@ plt.close()
 print("   [OK] 01_final_results_barchart.png")
 
 # ============================================================
-# FIGURE 2: 02_improvement_chart.png
+# FIGURE 2: Improvement Chart
 # ============================================================
 print("\n[2/15] Figure 2: Improvement Chart...")
 
 fig, ax = plt.subplots(figsize=(8, 5))
-
 improvements = [1.08, 2.83, 21.73]
 colors_imp = ['#3498DB', '#2ECC71', '#E74C3C']
 
@@ -215,24 +216,18 @@ plt.close()
 print("   [OK] 02_improvement_chart.png")
 
 # ============================================================
-# FIGURE 3: 03_mnist_literature_comparison.png
+# FIGURE 3: Literature Comparison
 # ============================================================
 print("\n[3/15] Figure 3: Literature Comparison...")
 
 fig, ax = plt.subplots(figsize=(9, 5.5))
-
-methods = ['LeNet-5\n(1998)', 'PyTorch\n(2020)', 'Keras\n(2021)', 
-           'ResNet-50\n(2016)', 'OUR METHOD\n(2026)']
-accuracies = [99.05, 98.50, 98.40, 99.10, 99.58]
-colors_lit = ['#95A5A6', '#95A5A6', '#95A5A6', '#95A5A6', '#2ECC71']
-
-bars = ax.bar(methods, accuracies, color=colors_lit, edgecolor='black', linewidth=1.5)
+bars = ax.bar(LIT_METHODS, LIT_ACCURACIES, color=LIT_COLORS, edgecolor='black', linewidth=1.5)
 ax.set_ylabel('Validation Accuracy (%)', fontsize=13, fontweight='bold')
 ax.set_title('MNIST Literature Comparison', fontsize=14, fontweight='bold')
 ax.set_ylim(97.5, 100)
 ax.grid(True, alpha=0.25, axis='y', linestyle='--')
 
-for bar, acc in zip(bars, accuracies):
+for bar, acc in zip(bars, LIT_ACCURACIES):
     ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.08,
             f'{acc:.2f}%', ha='center', fontsize=9, fontweight='bold')
 
@@ -249,7 +244,7 @@ plt.close()
 print("   [OK] 03_mnist_literature_comparison.png")
 
 # ============================================================
-# FIGURE 4: Performance Comparison Across Datasets (SAVED TO DATASET FOLDERS)
+# FIGURE 4: Performance Comparison
 # ============================================================
 print("\n[4/15] Figure 4: Performance Comparison...")
 
@@ -262,7 +257,6 @@ for i, dataset_key in enumerate(dataset_keys):
     
     bar_colors = ['#95A5A6', '#5D6D7E', '#F39C12', '#2980B9']
     bars = ax.bar(x, results, width, color=bar_colors, edgecolor='black', linewidth=1.2)
-    
     bars[3].set_color('#2E86AB')
     bars[3].set_edgecolor('black')
     bars[3].set_linewidth(2)
@@ -279,14 +273,8 @@ for i, dataset_key in enumerate(dataset_keys):
     ax.set_ylim(55, 102)
     ax.grid(True, alpha=0.25, axis='y', linestyle='--')
     
-    improvement = IMPROVEMENTS[datasets[i]]
-    ax.annotate(f'+{improvement:.2f} pp', xy=(3, results[3]), xytext=(2.2, results[3] - 4),
-               arrowprops=dict(arrowstyle='->', color='#27AE60', lw=2),
-               fontsize=10, fontweight='bold', color='#27AE60')
-    
     plt.tight_layout()
     
-    # Save to dataset-specific folder
     folder = dataset_keys[i]
     plt.savefig(f'paper/figures/{folder}/performance.pdf', dpi=300, bbox_inches='tight')
     plt.savefig(f'paper/figures/{folder}/performance.png', dpi=300, bbox_inches='tight')
@@ -294,24 +282,24 @@ for i, dataset_key in enumerate(dataset_keys):
     print(f"   [OK] paper/figures/{folder}/performance.pdf/png")
 
 # ============================================================
-# FIGURE 5: Convergence Curves (SAVED TO DATASET FOLDERS)
+# FIGURE 5: Convergence Curves - NO INDIVIDUAL TRIALS
 # ============================================================
 print("\n[5/15] Figure 5: Convergence Curves...")
 
 for key, data in CONVERGENCE.items():
     fig, ax = plt.subplots(figsize=(8, 5.5))
     color = data['color']
+    marker = data['marker']
     
-    ax.plot(trials, data['individual'], 'o', color='#95A5A6', marker='o',
-            markersize=7, markerfacecolor='#95A5A6', linewidth=0, alpha=0.4,
-            label='Individual Trials')
+    # BEST SO FAR - Dark line with filled markers
+    ax.plot(trials, data['best'], color='#2C3E50', marker=marker,
+            markersize=10, markerfacecolor=color, 
+            markeredgecolor='white', markeredgewidth=1.5,
+            linewidth=3, label='Best so far', zorder=4)
     
-    ax.plot(trials, data['best'], 's-', color=color, marker='s',
-            markersize=9, markerfacecolor=color, markeredgecolor='white',
-            markeredgewidth=1.5, linewidth=3, label='Best so far')
-    
+    # BASELINE - Dashed line
     ax.axhline(y=data['baseline'], color='#E74C3C', linestyle='--',
-               linewidth=2.5, label=f'Baseline ({data["baseline"]:.2f}%)')
+               linewidth=2.5, label=f'Baseline ({data["baseline"]:.2f}%)', zorder=1)
     
     ax.set_xlabel('Number of Evaluations', fontsize=12, fontweight='bold')
     ax.set_ylabel('Best Validation Accuracy (%)', fontsize=12, fontweight='bold')
@@ -329,15 +317,8 @@ for key, data in CONVERGENCE.items():
     ax.grid(True, alpha=0.25, linestyle='--')
     ax.legend(loc='lower right', fontsize=10)
     
-    ax.annotate(f'Best: {data["best_acc"]:.2f}%',
-                xy=(10, data['best_acc']),
-                xytext=(7, data['best_acc'] - 1.8),
-                arrowprops=dict(arrowstyle='->', color=color, lw=2),
-                fontsize=11, fontweight='bold', color=color)
-    
     plt.tight_layout()
     
-    # Save to dataset-specific folder
     folder = data['folder']
     plt.savefig(f'paper/figures/{folder}/convergence.pdf', dpi=300, bbox_inches='tight')
     plt.savefig(f'paper/figures/{folder}/convergence.png', dpi=300, bbox_inches='tight')
@@ -345,23 +326,21 @@ for key, data in CONVERGENCE.items():
     print(f"   [OK] paper/figures/{folder}/convergence.pdf/png")
 
 # ============================================================
-# FIGURE 6: Individual Trial Scatter Plots (SAVED TO DATASET FOLDERS)
+# FIGURE 6: Individual Trial Scatter Plots (ONLY for this figure)
 # ============================================================
 print("\n[6/15] Figure 6: Individual Trial Scatter Plots...")
 
 for key, data in CONVERGENCE.items():
     fig, ax = plt.subplots(figsize=(8, 5.5))
     color = data['color']
+    marker = data['marker']
     
-    ax.scatter(trials, data['individual'], color=color, s=150,
-               alpha=0.6, edgecolor='black', linewidth=1.5, label='Individual Trials')
-    
+    # Individual trials only for scatter plot
+    ax.scatter(trials, data['best'], color=color, s=150,
+               alpha=0.7, edgecolor='black', linewidth=1.5, 
+               marker=marker, label='Individual Trials')
     ax.axhline(y=data['baseline'], color='#E74C3C', linestyle='--',
-               linewidth=2.5, label=f'Baseline ({data["baseline"]:.2f}%)')
-    
-    mean_val = np.mean(data['individual'])
-    ax.axhline(y=mean_val, color='#F39C12', linestyle=':',
-               linewidth=2, label=f'Mean: {mean_val:.2f}%')
+               linewidth=2, label=f'Baseline ({data["baseline"]:.2f}%)')
     
     ax.set_xlabel('Trial Number', fontsize=12, fontweight='bold')
     ax.set_ylabel('Validation Accuracy (%)', fontsize=12, fontweight='bold')
@@ -378,10 +357,8 @@ for key, data in CONVERGENCE.items():
     
     ax.grid(True, alpha=0.25, linestyle='--')
     ax.legend(loc='lower right', fontsize=10)
-    
     plt.tight_layout()
     
-    # Save to dataset-specific folder
     folder = data['folder']
     plt.savefig(f'paper/figures/{folder}/individual_trials.pdf', dpi=300, bbox_inches='tight')
     plt.savefig(f'paper/figures/{folder}/individual_trials.png', dpi=300, bbox_inches='tight')
@@ -389,7 +366,7 @@ for key, data in CONVERGENCE.items():
     print(f"   [OK] paper/figures/{folder}/individual_trials.pdf/png")
 
 # ============================================================
-# FIGURE 7: Learning Rate Sensitivity (SAVED TO DATASET FOLDERS)
+# FIGURE 7: Learning Rate Sensitivity
 # ============================================================
 print("\n[7/15] Figure 7: Learning Rate Sensitivity...")
 
@@ -401,7 +378,6 @@ for key, data in CONVERGENCE.items():
     ax.semilogx(LR_VALUES, lr_acc, 'o-', color=color, linewidth=3,
                 markersize=10, markerfacecolor=color, markeredgecolor='white',
                 markeredgewidth=2, label='Validation Accuracy')
-    
     opt_idx = np.argmax(lr_acc)
     ax.plot(LR_VALUES[opt_idx], lr_acc[opt_idx], 's', color='#27AE60',
             markersize=14, markerfacecolor='#27AE60', markeredgecolor='white',
@@ -421,8 +397,6 @@ for key, data in CONVERGENCE.items():
         ax.set_ylim(60, 88)
     
     plt.tight_layout()
-    
-    # Save to dataset-specific folder
     folder = data['folder']
     plt.savefig(f'paper/figures/{folder}/lr_sensitivity.pdf', dpi=300, bbox_inches='tight')
     plt.savefig(f'paper/figures/{folder}/lr_sensitivity.png', dpi=300, bbox_inches='tight')
@@ -430,7 +404,7 @@ for key, data in CONVERGENCE.items():
     print(f"   [OK] paper/figures/{folder}/lr_sensitivity.pdf/png")
 
 # ============================================================
-# FIGURE 8: Batch Size Sensitivity (SAVED TO DATASET FOLDERS)
+# FIGURE 8: Batch Size Sensitivity
 # ============================================================
 print("\n[8/15] Figure 8: Batch Size Sensitivity...")
 
@@ -442,7 +416,6 @@ for key, data in CONVERGENCE.items():
     ax.plot(BATCH_SIZES, bs_acc, 's-', color=color, linewidth=3,
             markersize=10, markerfacecolor=color, markeredgecolor='white',
             markeredgewidth=2, label='Validation Accuracy')
-    
     opt_idx = np.argmax(bs_acc)
     ax.plot(BATCH_SIZES[opt_idx], bs_acc[opt_idx], 'o', color='#27AE60',
             markersize=14, markerfacecolor='#27AE60', markeredgecolor='white',
@@ -463,8 +436,6 @@ for key, data in CONVERGENCE.items():
         ax.set_ylim(82, 88)
     
     plt.tight_layout()
-    
-    # Save to dataset-specific folder
     folder = data['folder']
     plt.savefig(f'paper/figures/{folder}/batch_size.pdf', dpi=300, bbox_inches='tight')
     plt.savefig(f'paper/figures/{folder}/batch_size.png', dpi=300, bbox_inches='tight')
@@ -472,12 +443,11 @@ for key, data in CONVERGENCE.items():
     print(f"   [OK] paper/figures/{folder}/batch_size.pdf/png")
 
 # ============================================================
-# FIGURE 9: Cross-Dataset Improvement (figure8)
+# FIGURE 9: Cross-Dataset Improvement
 # ============================================================
 print("\n[9/15] Figure 9: Cross-Dataset Improvement...")
 
 fig, ax = plt.subplots(figsize=(10, 6))
-
 improvements = [1.08, 2.83, 21.73]
 colors_imp = ['#3498DB', '#2ECC71', '#E74C3C']
 
@@ -495,10 +465,6 @@ for bar, imp, dataset in zip(bars, improvements, datasets):
             f'from {BASELINE[dataset]:.2f}%', ha='center', fontsize=9,
             color='white', fontweight='bold')
 
-ax.annotate('DRAMATIC IMPROVEMENT!', xy=(2, 21.73), xytext=(2.5, 26),
-           arrowprops=dict(arrowstyle='->', color='#E74C3C', lw=3),
-           fontsize=12, fontweight='bold', color='#E74C3C', ha='center')
-
 plt.tight_layout()
 plt.savefig('paper/figures/figure8.pdf', dpi=300, bbox_inches='tight')
 plt.savefig('paper/figures/figure8.png', dpi=300, bbox_inches='tight')
@@ -507,16 +473,14 @@ plt.close()
 print("   [OK] figure8.pdf/png (Cross-Dataset Improvement)")
 
 # ============================================================
-# FIGURE 10: Parallel Scalability (figure11)
+# FIGURE 10: Parallel Scalability
 # ============================================================
 print("\n[10/15] Figure 10: Parallel Scalability...")
 
 fig, ax = plt.subplots(figsize=(8, 5.5))
-
 ax.plot(WORKERS, SPEEDUP, 'o-', color='#2E86AB', linewidth=3, markersize=10,
         markerfacecolor='#2E86AB', markeredgecolor='white', markeredgewidth=2)
 ax.axvline(x=3, color='#E74C3C', linestyle='--', linewidth=2.5, label='Optimal (3 workers)')
-
 ax.set_xlabel('Number of Workers', fontsize=12, fontweight='bold')
 ax.set_ylabel('Speedup', fontsize=12, fontweight='bold')
 ax.set_title('Parallel Scalability: Speedup vs Workers', fontsize=14, fontweight='bold')
@@ -524,14 +488,6 @@ ax.set_xlim(0.5, 6.5)
 ax.set_ylim(0, 5.5)
 ax.grid(True, alpha=0.25, linestyle='--')
 ax.legend(loc='best', fontsize=10)
-
-for w, s in zip(WORKERS, SPEEDUP):
-    ax.annotate(f'{s:.1f}x', xy=(w, s), xytext=(w-0.2, s+0.3),
-                fontsize=9, fontweight='bold', color='#2E86AB')
-
-for w, e in zip(WORKERS, EFFICIENCY):
-    ax.annotate(f'{e}%', xy=(w, 0.2), xytext=(w-0.15, 0.3),
-                fontsize=8, color='#5D6D7E', rotation=90)
 
 plt.tight_layout()
 plt.savefig('paper/figures/figure11.pdf', dpi=300, bbox_inches='tight')
@@ -541,12 +497,11 @@ plt.close()
 print("   [OK] figure11.pdf/png (Parallel Scalability)")
 
 # ============================================================
-# FIGURE 11: Ablation Study (figure14)
+# FIGURE 11: Ablation Study
 # ============================================================
 print("\n[11/15] Figure 11: Ablation Study...")
 
 fig, ax = plt.subplots(figsize=(11, 6.5))
-
 bars = ax.bar(ABLATION_COMPONENTS, ABLATION_ACCURACY, color=ABLATION_COLORS,
               edgecolor='black', linewidth=1.5)
 ax.set_ylabel('CIFAR-10 Accuracy (%)', fontsize=13, fontweight='bold')
@@ -569,19 +524,15 @@ plt.close()
 print("   [OK] figure14.pdf/png (Ablation Study)")
 
 # ============================================================
-# FIGURE 12: Literature Comparison (figure15)
+# FIGURE 12: Literature Comparison
 # ============================================================
 print("\n[12/15] Figure 12: Literature Comparison...")
 
 fig, ax = plt.subplots(figsize=(11, 6.5))
-
-bars = ax.bar(LIT_METHODS, LIT_ACCURACIES, color=LIT_COLORS,
-              edgecolor='black', linewidth=1.5)
-
+bars = ax.bar(LIT_METHODS, LIT_ACCURACIES, color=LIT_COLORS, edgecolor='black', linewidth=1.5)
 ax.set_ylabel('Validation Accuracy (%)', fontsize=13, fontweight='bold')
 ax.set_title('MNIST Literature Comparison', fontsize=15, fontweight='bold')
-ax.axhline(y=99.58, color='#27AE60', linestyle='--',
-           linewidth=3, label='Our Result (99.58%)')
+ax.axhline(y=99.58, color='#27AE60', linestyle='--', linewidth=3, label='Our Result (99.58%)')
 ax.set_ylim(97, 100)
 ax.grid(True, alpha=0.25, axis='y', linestyle='--')
 ax.legend(loc='upper left', fontsize=11)
@@ -592,9 +543,6 @@ for bar, acc in zip(bars, LIT_ACCURACIES):
     ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.08,
             f'{acc:.2f}%', ha='center', fontsize=10, fontweight=fontweight, color=color)
 
-ax.annotate('BEST RESULT!', xy=(4, 99.58), xytext=(4, 99.9),
-           ha='center', fontsize=13, fontweight='bold', color='#27AE60')
-
 plt.tight_layout()
 plt.savefig('paper/figures/figure15.pdf', dpi=300, bbox_inches='tight')
 plt.savefig('paper/figures/figure15.png', dpi=300, bbox_inches='tight')
@@ -603,13 +551,12 @@ plt.close()
 print("   [OK] figure15.pdf/png (Literature Comparison)")
 
 # ============================================================
-# FIGURE 13: 04_results_table.png
+# FIGURE 13: Results Table
 # ============================================================
 print("\n[13/15] Figure 13: Results Table...")
 
 fig, ax = plt.subplots(figsize=(10, 3.5))
 ax.axis('off')
-
 table_data = [
     ['Dataset', 'Baseline', 'Final Accuracy', 'Improvement', 'Status'],
     ['MNIST', '98.50%', '99.58%', '+1.08%', 'BEATEN'],
@@ -639,20 +586,17 @@ table[(3, 4)].set_facecolor('#E74C3C')
 
 ax.set_title('FINAL RESULTS SUMMARY - Cloud-Edge Bayesian Optimization', 
              fontsize=14, fontweight='bold', pad=20)
-
 plt.tight_layout()
 plt.savefig('paper/figures/04_results_table.png', dpi=300, bbox_inches='tight')
-plt.savefig('report_graphs/04_results_table.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("   [OK] 04_results_table.png")
 
 # ============================================================
-# FIGURE 14: 04_speedup_analysis.png
+# FIGURE 14: Speedup Analysis
 # ============================================================
 print("\n[14/15] Figure 14: Speedup Analysis...")
 
 fig, ax = plt.subplots(figsize=(8, 5))
-
 configs = ['Sequential\n(1 worker)', 'Cloud-Edge\n(3 workers)']
 times = [36, 12]
 colors_speed = ['#E74C3C', '#27AE60']
@@ -667,10 +611,6 @@ for bar, time in zip(bars, times):
     ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1.5,
             f'{time} min', ha='center', fontsize=12, fontweight='bold')
 
-ax.annotate('3x FASTER!', xy=(1, 12), xytext=(0.65, 35),
-            arrowprops=dict(arrowstyle='->', color='black', lw=1.5),
-            fontsize=13, fontweight='bold', ha='center')
-
 plt.tight_layout()
 plt.savefig('paper/figures/04_speedup_analysis.png', dpi=300, bbox_inches='tight')
 plt.savefig('paper/figures/05_speedup_analysis.png', dpi=300, bbox_inches='tight')
@@ -679,7 +619,7 @@ plt.close()
 print("   [OK] 04_speedup_analysis.png")
 
 # ============================================================
-# FIGURE 15: 06_summary_dashboard.png
+# FIGURE 15: Summary Dashboard
 # ============================================================
 print("\n[15/15] Figure 15: Summary Dashboard...")
 
@@ -720,9 +660,6 @@ ax2.set_ylim(0, 45)
 ax2.grid(True, alpha=0.25, axis='y')
 for i, time in enumerate([36, 12]):
     ax2.text(i, time + 1.5, f'{time} min', ha='center', fontsize=11, fontweight='bold')
-ax2.annotate('3x', xy=(1, 12), xytext=(1, 35),
-            arrowprops=dict(arrowstyle='->', color='black', lw=1.5),
-            fontsize=13, fontweight='bold', ha='center', color='#27AE60')
 
 # Subplot 3: Statistical Validation
 ax3 = plt.subplot(2, 2, 3)
@@ -769,21 +706,18 @@ ax4.set_title('KEY ACHIEVEMENTS', fontsize=12, fontweight='bold', pad=20)
 
 plt.suptitle('CLOUD-EDGE BAYESIAN OPTIMIZATION - COMPLETE RESULTS DASHBOARD', 
              fontsize=14, fontweight='bold', y=0.98)
-
 plt.tight_layout()
 plt.savefig('paper/figures/06_summary_dashboard.png', dpi=300, bbox_inches='tight')
-plt.savefig('report_graphs/06_summary_dashboard.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("   [OK] 06_summary_dashboard.png")
 
 # ============================================================
-# GENERATE TABLES (CSV)
+# GENERATE TABLES
 # ============================================================
 print("\n" + "=" * 40)
 print("GENERATING TABLES")
 print("=" * 40)
 
-# Table 1: Main Results
 df1 = pd.DataFrame([
     ['MNIST', 98.50, 99.58, 1.08],
     ['FashionMNIST', 89.96, 92.79, 2.83],
@@ -792,7 +726,6 @@ df1 = pd.DataFrame([
 df1.to_csv('paper/tables/01_Main_Results.csv', index=False)
 print("   [OK] 01_Main_Results.csv")
 
-# Table 2: Literature Comparison
 df2 = pd.DataFrame([
     ['LeNet-5 (1998)', 99.05],
     ['PyTorch (2020)', 98.50],
@@ -803,7 +736,6 @@ df2 = pd.DataFrame([
 df2.to_csv('paper/tables/02_Literature_Comparison.csv', index=False)
 print("   [OK] 02_Literature_Comparison.csv")
 
-# Table 3: Speedup
 df3 = pd.DataFrame([
     ['Sequential (1 worker)', 36, '1x'],
     ['Cloud-Edge (3 workers)', 12, '3x']
@@ -811,7 +743,6 @@ df3 = pd.DataFrame([
 df3.to_csv('paper/tables/03_Speedup_Analysis.csv', index=False)
 print("   [OK] 03_Speedup_Analysis.csv")
 
-# Table 4: Ablation Study
 df4 = pd.DataFrame([
     ['Full Model', 86.73],
     ['- Heterogeneity Compensation', 79.30],
@@ -828,13 +759,11 @@ print("   [OK] 04_Ablation_Study.csv")
 print("\n" + "=" * 70)
 print("ALL PAPER FIGURES GENERATED SUCCESSFULLY!")
 print("=" * 70)
-
 print("\nFigures saved to:")
 print("   - paper/figures/mnist/")
 print("   - paper/figures/fashionmnist/")
 print("   - paper/figures/cifar10/")
 print("   - paper/figures/ (cross-dataset graphs)")
-
+print("\nTables saved to: paper/tables/")
 print("\n" + "=" * 70)
-print("ALL GRAPHS READY FOR PAPER SUBMISSION!")
 print("=" * 70)
