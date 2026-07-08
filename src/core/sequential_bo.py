@@ -1,135 +1,209 @@
-﻿import numpy as np
-from skopt import gp_minimize
-from skopt.space import Real, Integer
-from skopt.utils import use_named_args
+﻿"""
+Sequential Bayesian Optimization - 3D Support
+Optimizes: learning_rate, batch_size, num_epochs
+"""
+
+import numpy as np
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import Matern, WhiteKernel
 import time
 import json
 import sys
 import os
 
-# Set working directory to project root
-os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 
-def get_objective(dataset_name):
-    if dataset_name == 'mnist':
-        from train_mnist import train_mnist
-        def objective(lr, batch_size, num_epochs=15, dropout_rate=0.25):
-            print(f"\n  Training MNIST: lr={lr:.6f}, bs={int(batch_size)}, epochs={int(num_epochs)}")
-            accuracy, runtime = train_mnist(lr=lr, batch_size=int(batch_size), num_epochs=int(num_epochs))
-            print(f"  -> Accuracy: {accuracy:.2f}%, Time: {runtime:.1f}s")
-            return -accuracy
-    elif dataset_name == 'fashionmnist':
-        from train_fashionmnist import train_fashionmnist
-        def objective(lr, batch_size, num_epochs=15, dropout_rate=0.25):
-            print(f"\n  Training FashionMNIST: lr={lr:.6f}, bs={int(batch_size)}, epochs={int(num_epochs)}")
-            accuracy, runtime = train_fashionmnist(lr=lr, batch_size=int(batch_size), num_epochs=int(num_epochs))
-            print(f"  -> Accuracy: {accuracy:.2f}%, Time: {runtime:.1f}s")
-            return -accuracy
-    elif dataset_name == 'cifar10':
-        from train_cifar10 import train_cifar10
-        def objective(lr, batch_size, num_epochs=15, dropout_rate=0.25):
-            print(f"\n  Training CIFAR-10: lr={lr:.6f}, bs={int(batch_size)}, epochs={int(num_epochs)}")
-            accuracy, runtime = train_cifar10(lr=lr, batch_size=int(batch_size), num_epochs=int(num_epochs))
-            print(f"  -> Accuracy: {accuracy:.2f}%, Time: {runtime:.1f}s")
-            return -accuracy
-    else:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
-    return objective
+import warnings
+warnings.filterwarnings('ignore')
 
-def run_sequential_bo(dataset_name='mnist', n_trials=25):
-    print("=" * 60)
-    print(f"SEQUENTIAL BAYESIAN OPTIMIZATION - {dataset_name.upper()}")
-    print("=" * 60)
+
+class SequentialBO:
+    """Sequential Bayesian Optimization with 3D search space"""
     
-    # Add training folder to path
-    training_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'training')
-    sys.path.insert(0, training_path)
-    
-    space = [
-        Real(1e-5, 5e-3, "log-uniform", name="learning_rate"),
-        Integer(32, 256, name="batch_size"),
-        Integer(10, 25, name="num_epochs"),  #  INCREASED TO 10-25!
-        Real(0.0, 0.3, name="dropout_rate"),  #  Added dropout
-    ]
-    
-    objective = get_objective(dataset_name)
-    
-    @use_named_args(space)
-    def objective_wrapper(**params):
-        return objective(
-            params["learning_rate"], 
-            params["batch_size"],
-            params["num_epochs"],
-            params["dropout_rate"]
+    def __init__(self, bounds, beta=2.0, n_restarts=10, seed=42):
+        self.bounds = np.array(bounds)
+        self.dim = len(bounds)
+        self.beta = beta
+        self.seed = seed
+        np.random.seed(seed)
+        
+        self.kernel = Matern(nu=2.5, length_scale=1.0) + WhiteKernel(noise_level=0.1)
+        
+        self.gp = GaussianProcessRegressor(
+            kernel=self.kernel,
+            n_restarts_optimizer=n_restarts,
+            alpha=1e-6,
+            normalize_y=True,
+            random_state=seed
         )
+        
+        self.X = []
+        self.y = []
+        self.best_X = None
+        self.best_y = -np.inf
+        self.initial_design_size = max(5, 2 * self.dim)
     
-    print(f"\nRunning {n_trials} sequential trials...")
-    print(f"Search space:")
-    print(f"  - Learning Rate: [1e-5, 5e-3] (log scale)")
-    print(f"  - Batch Size: [32, 256]")
-    print(f"  - Num Epochs: [10, 25]")  #  Updated!
-    print(f"  - Dropout Rate: [0.0, 0.3]")  #  Added!
-    print("-" * 40)
+    def _latin_hypercube(self, n_points):
+        samples = np.random.rand(n_points, self.dim)
+        for i in range(self.dim):
+            samples[:, i] = (samples[:, i] + np.arange(n_points)) / n_points
+            samples[:, i] = self.bounds[i, 0] + samples[:, i] * (self.bounds[i, 1] - self.bounds[i, 0])
+        np.random.shuffle(samples)
+        return samples
     
-    result = gp_minimize(
-        func=objective_wrapper,
-        dimensions=space,
-        n_calls=n_trials,
-        n_initial_points=min(5, n_trials),
-        random_state=42,
-        verbose=True
-    )
+    def _snap_to_valid(self, params):
+        """Snap batch_size and epochs to valid discrete values"""
+        lr = params[0]
+        bs_val = params[1]
+        ep_val = params[2]
+        
+        # Valid batch sizes: 16, 32, 64, 128
+        valid_bs = [16, 32, 64, 128]
+        bs = valid_bs[np.argmin([abs(bs_val - v) for v in valid_bs])]
+        
+        # Valid epochs: 2, 6
+        valid_ep = [2, 6]
+        ep = valid_ep[np.argmin([abs(ep_val - v) for v in valid_ep])]
+        
+        return [float(lr), int(bs), int(ep)]
     
-    best_lr = result.x[0]
-    best_bs = result.x[1]
-    best_epochs = result.x[2]
-    best_dropout = result.x[3]
-    best_acc = -result.fun
+    def _acquisition_ucb(self, X):
+        X = np.atleast_2d(X)
+        mean, std = self.gp.predict(X, return_std=True)
+        return mean + self.beta * std
     
-    print("\n" + "=" * 60)
-    print("OPTIMIZATION COMPLETE!")
-    print("=" * 60)
-    print(f"\nBest Validation Accuracy: {best_acc:.2f}%")
-    print(f"Best Hyperparameters:")
-    print(f"   Learning Rate: {best_lr:.6f}")
-    print(f"   Batch Size: {int(best_bs)}")
-    print(f"   Num Epochs: {int(best_epochs)}")
-    print(f"   Dropout Rate: {best_dropout:.3f}")
+    def propose_next(self):
+        if len(self.X) < self.initial_design_size:
+            points = self._latin_hypercube(1)
+            return self._snap_to_valid(points[0])
+        
+        n_candidates = 1000
+        candidates = np.random.rand(n_candidates, self.dim)
+        for i in range(self.dim):
+            candidates[:, i] = self.bounds[i, 0] + candidates[:, i] * (self.bounds[i, 1] - self.bounds[i, 0])
+        
+        acq_values = np.array([self._acquisition_ucb(c)[0] for c in candidates])
+        best_idx = np.argmax(acq_values)
+        return self._snap_to_valid(candidates[best_idx])
     
-    results = {
-        'method': f'Sequential BO - {dataset_name}',
-        'n_trials': n_trials,
-        'best_accuracy': float(best_acc),
-        'best_params': {
-            'learning_rate': float(best_lr),
-            'batch_size': int(best_bs),
-            'num_epochs': int(best_epochs),
-            'dropout_rate': float(best_dropout)
-        },
-        'all_trials': [
-            {
-                'learning_rate': float(x[0]),
-                'batch_size': int(x[1]),
-                'num_epochs': int(x[2]),
-                'dropout_rate': float(x[3]),
-                'accuracy': float(-y)
-            }
-            for x, y in zip(result.x_iters, result.func_vals)
-        ]
-    }
+    def evaluate(self, params, dataset='mnist'):
+        from src.training.train_mnist import train_mnist
+        
+        lr = params[0]
+        bs = int(params[1])
+        ep = int(params[2])
+        
+        print(f"  Training: lr={lr:.6f}, bs={bs}, epochs={ep}")
+        
+        if dataset == 'mnist':
+            from src.training.train_mnist import train_mnist
+            train_fn = train_mnist
+        elif dataset == 'fashionmnist':
+            from src.training.train_fashionmnist import train_fashionmnist
+            train_fn = train_fashionmnist
+        elif dataset == 'cifar10':
+            from src.training.train_cifar10 import train_cifar10
+            train_fn = train_cifar10
+        else:
+            raise ValueError(f"Unknown dataset: {dataset}")
+        
+        start_time = time.time()
+        accuracy, runtime = train_fn(lr=lr, batch_size=bs, num_epochs=ep)
+        elapsed = time.time() - start_time
+        
+        print(f"  -> Accuracy: {accuracy:.2f}%, Time: {elapsed:.1f}s")
+        
+        return accuracy, elapsed
     
-    os.makedirs('results', exist_ok=True)
-    with open(f'results/sequential_bo_{dataset_name}.json', 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"\nResults saved to results/sequential_bo_{dataset_name}.json")
-    return results
+    def run_optimization(self, n_trials=12, dataset='mnist', seed=42):
+        print("=" * 70)
+        print("SEQUENTIAL BAYESIAN OPTIMIZATION (3D)")
+        print("=" * 70)
+        
+        print(f"\nConfiguration:")
+        print(f"  Search space: {self.dim} dimensions")
+        print(f"  - Learning Rate: [{self.bounds[0][0]:.0e}, {self.bounds[0][1]:.0e}]")
+        print(f"  - Batch Size: [{self.bounds[1][0]}, {self.bounds[1][1]}]")
+        print(f"  - Epochs: [{self.bounds[2][0]}, {self.bounds[2][1]}]")
+        print(f"  Beta (UCB): {self.beta}")
+        print(f"  Dataset: {dataset}")
+        print(f"  Total trials: {n_trials}")
+        print(f"  Seed: {seed}")
+        print("-" * 70)
+        
+        all_trials = []
+        
+        for trial_idx in range(n_trials):
+            print(f"\nTrial {trial_idx + 1}/{n_trials}")
+            print("-" * 40)
+            
+            params = self.propose_next()
+            print(f"  Proposed: lr={params[0]:.6f}, bs={params[1]}, epochs={params[2]}")
+            
+            accuracy, runtime = self.evaluate(params, dataset)
+            
+            self.X.append(params)
+            self.y.append(accuracy)
+            
+            if accuracy > self.best_y:
+                self.best_y = accuracy
+                self.best_X = params
+            
+            if len(self.X) > 1:
+                self.gp.fit(np.array(self.X), np.array(self.y))
+            
+            all_trials.append({
+                'learning_rate': float(params[0]),
+                'batch_size': int(params[1]),
+                'num_epochs': int(params[2]),
+                'accuracy': float(accuracy),
+                'runtime': float(runtime)
+            })
+            
+            print(f"  Best so far: {self.best_y:.2f}%")
+        
+        print("\n" + "=" * 70)
+        print("OPTIMIZATION COMPLETE!")
+        print("=" * 70)
+        print(f"\nBest Validation Accuracy: {self.best_y:.2f}%")
+        if self.best_X:
+            print(f"Best: lr={self.best_X[0]:.6f}, bs={self.best_X[1]}, epochs={self.best_X[2]}")
+        
+        results = {
+            'method': 'Sequential BO',
+            'dataset': dataset,
+            'seed': seed,
+            'n_trials': n_trials,
+            'best_accuracy': float(self.best_y),
+            'best_hyperparameters': {
+                'learning_rate': float(self.best_X[0]) if self.best_X else None,
+                'batch_size': int(self.best_X[1]) if self.best_X else None,
+                'num_epochs': int(self.best_X[2]) if self.best_X else None
+            },
+            'all_trials': all_trials
+        }
+        
+        os.makedirs('results', exist_ok=True)
+        filename = f'results/sequential_bo_{dataset}_seed{seed}.json'
+        with open(filename, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        print(f"\nResults saved to {filename}")
+        return results
+
+
+def run_sequential_bo(dataset='mnist', n_trials=12, seed=42):
+    bounds = [(1e-5, 1e-2), (16, 128), (2, 6)]
+    optimizer = SequentialBO(bounds, beta=2.0, seed=seed)
+    return optimizer.run_optimization(n_trials=n_trials, dataset=dataset, seed=seed)
+
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str, default='mnist', 
-                        choices=['mnist', 'fashionmnist', 'cifar10'])
-    parser.add_argument('--trials', type=int, default=25)
+    parser.add_argument('--dataset', type=str, default='mnist', choices=['mnist', 'fashionmnist', 'cifar10'])
+    parser.add_argument('--trials', type=int, default=12)
+    parser.add_argument('--seed', type=int, default=42)
     args = parser.parse_args()
-    run_sequential_bo(dataset_name=args.dataset, n_trials=args.trials)
+    run_sequential_bo(dataset=args.dataset, n_trials=args.trials, seed=args.seed)

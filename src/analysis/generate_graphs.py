@@ -612,9 +612,8 @@ for bar, time in zip(bars, times):
             f'{time} min', ha='center', fontsize=12, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('paper/figures/04_speedup_analysis.png', dpi=300, bbox_inches='tight')
+plt.savefig('paper/figures/04_speedup_analysis.pdf', dpi=300, bbox_inches='tight')
 plt.savefig('paper/figures/05_speedup_analysis.png', dpi=300, bbox_inches='tight')
-plt.savefig('report_graphs/04_speedup_analysis.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("   [OK] 04_speedup_analysis.png")
 
