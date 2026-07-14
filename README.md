@@ -42,7 +42,8 @@ The framework achieves **3× speedup** over sequential execution by parallelizin
 
 ## Architecture
 
-![Cloud-Edge Bayesian Optimization Architecture]<img width="1024" height="1536" alt="figure1 (2)" src="https://github.com/user-attachments/assets/cf76dd2c-043b-43b1-9cbe-41c5fea0392c" />
+![Cloud-Edge Bayesian Optimization Architecture]<img width="1448" height="1086" alt="figure1_architectue" src="https://github.com/user-attachments/assets/9a50abac-00c8-4cb0-9ccb-e7e06e833eca" />
+
 
 
 The cloud controller sits at the top and owns the Gaussian Process model, which predicts expected accuracy and how uncertain it is about that prediction. That feeds into the q-UCB acquisition step, which balances exploring new regions of the search space against exploiting what already looks promising. The batch proposer then generates three hyperparameter configurations at once, spread out enough to not waste evaluations on near-duplicates.
