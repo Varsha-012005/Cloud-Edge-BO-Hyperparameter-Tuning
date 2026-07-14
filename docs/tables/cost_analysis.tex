@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{AWS EC2 Cost and Time Comparison}
+\label{tab:cost}
+\begin{tabular}{lccc}
+\hline
+\textbf{Method} & \textbf{Workers} & \textbf{Time (min)} & \textbf{Cost (USD)} \\
+\hline
+Sequential BO & 1 & 36.0 & $0.0125 \\
+Batch BO (Local) & 3 (local) & 12.0 & $0.0083 \\
+Cloud-Edge BO & 3 & 12.0 & $0.0246 \\
+\hline
+\multicolumn{2}{l}{\textbf{Speedup}} & \textbf{3.0×} & \textbf{\$0.0104} \\
+\bottomrule
+\end{tabular}
+\end{table}
