@@ -1,0 +1,15 @@
+{
+  "task_id": 8,
+  "worker_id": 2,
+  "worker_name": "fast",
+  "learning_rate": 0.002889877039758615,
+  "batch_size": 64,
+  "num_epochs": 4,
+  "dataset": "mnist",
+  "seed": 456,
+  "run_id": "mnist_seed456_1783369537",
+  "accuracy": 98.98,
+  "runtime": 299.5515658855438,
+  "instance_id": "i-0413fe826460835ae",
+  "timestamp": "2026-07-06T20:41:30.251133"
+}

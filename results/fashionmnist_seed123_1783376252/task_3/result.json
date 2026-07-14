@@ -1,0 +1,15 @@
+{
+  "task_id": 3,
+  "worker_id": 0,
+  "worker_name": "slow",
+  "learning_rate": 0.008755734725056495,
+  "batch_size": 16,
+  "num_epochs": 4,
+  "dataset": "fashionmnist",
+  "seed": 123,
+  "run_id": "fashionmnist_seed123_1783376252",
+  "accuracy": 10.0,
+  "runtime": 498.58862018585205,
+  "instance_id": "i-0413fe826460835ae",
+  "timestamp": "2026-07-06T22:32:02.214966"
+}

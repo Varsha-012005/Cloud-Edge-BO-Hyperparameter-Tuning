@@ -1,0 +1,15 @@
+{
+  "task_id": 5,
+  "worker_id": 2,
+  "worker_name": "fast",
+  "learning_rate": 0.00010703702960745547,
+  "batch_size": 128,
+  "num_epochs": 4,
+  "dataset": "cifar10",
+  "seed": 123,
+  "run_id": "cifar10_seed123_1783357228",
+  "accuracy": 58.84,
+  "runtime": 389.1332802772522,
+  "instance_id": "i-0413fe826460835ae",
+  "timestamp": "2026-07-06T17:15:52.495891"
+}
